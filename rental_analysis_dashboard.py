@@ -22,7 +22,8 @@ st.markdown("""
 st.image('picture.jpg', use_column_width=True)
 
 # Memuat data
-day_data = pd.read_csv('C:\\Submission\\dashboard\\day.csv')
+day_data = pd.read_csv('day.csv')
+
 
 # Menampilkan data di container terpisah
 st.subheader("Data Penyewaan Sepeda:")
