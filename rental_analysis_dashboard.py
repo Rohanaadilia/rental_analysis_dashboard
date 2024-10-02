@@ -19,7 +19,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Menampilkan gambar
-st.image('C:\\Submission\\dashboard\\picture.jpg', use_column_width=True)  # Ganti 'images.jpeg' dengan nama file gambar Anda
+st.image('picture.jpg', use_column_width=True)
 
 # Memuat data
 day_data = pd.read_csv('C:\\Submission\\dashboard\\day.csv')
