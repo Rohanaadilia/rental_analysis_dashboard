@@ -80,3 +80,6 @@ st.pyplot(plt)  # Menampilkan plot di Streamlit
 st.write("### Insight:")
 st.write("- Penyewaan lebih tinggi pada hari kerja dibandingkan akhir pekan.")
 st.write("- Cuaca cerah meningkatkan penyewaan sepeda.")
+# Cek distribusi kategori penyewaan sepeda
+st.write("Distribusi Kategori Penyewaan Sepeda:")
+st.write(day_data['cnt_bin'].value_counts())
