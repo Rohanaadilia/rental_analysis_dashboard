@@ -16,4 +16,4 @@ Untuk menjalankan proyek ini secara lokal, ikuti langkah-langkah berikut:
 ### 1. Clone repository atau unduh file proyek
 Jika menggunakan Git, jalankan perintah berikut:
 ```bash
-[git clone https://github.com/nama-repo/bike-sharing-dashboard.git](https://github.com/Rohanaadilia/rental_analysis_dashboard.git)
+https://github.com/Rohanaadilia/rental_analysis_dashboard.git
