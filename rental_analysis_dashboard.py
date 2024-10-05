@@ -30,9 +30,9 @@ st.dataframe(day_data.head())  # Menggunakan st.dataframe untuk tampilan interak
 
 # Menampilkan informasi mengenai dataset
 st.subheader("Informasi Dataset:")
-buffer = pd.io.formats.format.StringFormatter()
-st.text(day_data.info(buf=buffer))
-st.text(buffer.getvalue())
+buffer = pd.DataFrame(day_data.dtypes).reset_index()
+buffer.columns = ['Kolom', 'Tipe Data']
+st.table(buffer)  # Menggunakan st.table untuk menampilkan informasi kolom dan tipe data
 
 # Mengecek jumlah nilai null dalam setiap kolom
 null_counts = day_data.isnull().sum()
