@@ -81,7 +81,3 @@ Dataset yang digunakan untuk analisis adalah **Bike Sharing Dataset**. Dataset i
 2. Bandingkan rata-rata penyewaan sepeda pada hari kerja dan akhir pekan.
 3. Analisis bagaimana kondisi cuaca memengaruhi jumlah penyewaan sepeda.
 4. Lihat distribusi penyewaan sepeda berdasarkan kategori (Low, Medium, High).
-
----
-
-Pastikan semua petunjuk di atas sudah jelas dan sesuai dengan kebutuhan proyek Anda. Jika ada yang perlu ditambahkan atau direvisi lagi, Anda bisa menyesuaikannya.
