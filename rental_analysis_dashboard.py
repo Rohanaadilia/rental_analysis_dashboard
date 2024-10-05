@@ -1,7 +1,7 @@
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
 import streamlit as st
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # Set tema
 st.set_page_config(page_title="Dashboard Penyewaan Sepeda", layout="wide")
@@ -18,78 +18,68 @@ st.markdown("""
                 -webkit-text-fill-color: transparent;'>Dashboard Penyewaan Sepeda</h1>
 """, unsafe_allow_html=True)
 
-# Memuat dataset dari file CSV
-day_data = pd.read_csv('day.csv')
-
 # Menampilkan gambar
 st.image('picture.jpg', use_column_width=True)
 
-# Analisis Data
-st.header('Analisis Data')
-st.write(day_data.info())
-st.write("Tidak ada nilai null di dataset dan tidak ditemukan data duplikat.")
+# Memuat data
+day_data = pd.read_csv('day.csv')
 
-# Mengecek outliers
-plt.figure(figsize=(12, 6))
-sns.boxplot(data=day_data[['cnt', 'temp', 'atemp', 'hum', 'windspeed']])
-plt.title('Pengecekan Outliers pada Fitur Numerik')
-st.pyplot()
 
-# Histogram distribusi 'cnt'
-plt.figure(figsize=(8, 5))
-plt.hist(day_data['cnt'], bins=30, color='blue', edgecolor='black')
-plt.title('Distribusi Jumlah Penyewaan Sepeda (cnt)')
-plt.xlabel('Jumlah Penyewaan (cnt)')
-plt.ylabel('Frekuensi')
-st.pyplot()
+# Menampilkan data di container terpisah
+st.subheader("Data Penyewaan Sepeda:")
+st.dataframe(day_data.head())  # Menggunakan st.dataframe untuk tampilan interaktif
 
-# Penjelasan
-st.write("Distribusi jumlah penyewaan sepeda menunjukkan bahwa data cenderung tidak normal (skewed), "
-         "dengan sebagian besar penyewaan berada di bawah rata-rata.")
+# Membuat histogram untuk kolom 'cnt'
+st.subheader("Distribusi Jumlah Penyewaan Sepeda:")
+plt.figure(figsize=(10, 6))
+sns.histplot(day_data['cnt'], bins=30, kde=True)
+plt.title('Distribusi Jumlah Penyewaan Sepeda', fontsize=18)
+plt.xlabel('Jumlah Penyewaan', fontsize=14)
+plt.ylabel('Frekuensi', fontsize=14)
+st.pyplot(plt)  # Menggunakan st.pyplot untuk menampilkan plot
 
-# Pertanyaan 1: Rata-rata penyewaan antara hari kerja dan akhir pekan
+# Mengelompokkan data berdasarkan hari kerja untuk mendapatkan rata-rata
 workingday_counts = day_data.groupby('workingday')['cnt'].mean()
+
+# Membuat bar chart untuk Rata-rata Penyewaan Sepeda: Hari Kerja vs Akhir Pekan
+st.subheader("Rata-rata Penyewaan Sepeda: Hari Kerja vs Akhir Pekan")
 plt.figure(figsize=(8, 5))
-sns.barplot(x=['Weekend/Holiday', 'Working Day'], y=workingday_counts)
-plt.title('Rata-rata Penyewaan Sepeda: Hari Kerja vs Akhir Pekan')
-plt.ylabel('Rata-rata Jumlah Penyewaan')
-plt.xlabel('Tipe Hari')
-st.pyplot()
+sns.barplot(x=['Weekend/Holiday', 'Working Day'], y=workingday_counts, palette='coolwarm')
+plt.title('Average Bike Rentals: Working Day vs Weekend/Holiday', fontsize=18)
+plt.ylabel('Average Count of Rentals', fontsize=14)
+plt.xlabel('Day Type', fontsize=14)
+st.pyplot(plt)  # Menampilkan bar chart di Streamlit
 
-# Penjelasan
-st.write("Rata-rata penyewaan sepeda lebih tinggi pada hari kerja dibandingkan akhir pekan, "
-         "menunjukkan bahwa sepeda lebih banyak digunakan untuk keperluan komuter.")
-
-# Pertanyaan 2: Pengaruh kondisi cuaca
+# Mengelompokkan data berdasarkan situasi cuaca untuk mendapatkan rata-rata
 weather_counts = day_data.groupby('weathersit')['cnt'].mean()
+
+# Membuat bar chart untuk Penyewaan Sepeda Berdasarkan Cuaca
+st.subheader("Penyewaan Sepeda Berdasarkan Cuaca")
 weather_labels = {1: 'Clear/Partly Cloudy', 2: 'Cloudy/Mist', 3: 'Light Rain/Snow', 4: 'Heavy Rain/Snow'}
 
 plt.figure(figsize=(8, 5))
-sns.barplot(x=[weather_labels[i] for i in weather_counts.index], y=weather_counts)
-plt.title('Rata-rata Penyewaan Sepeda berdasarkan Kondisi Cuaca')
-plt.ylabel('Rata-rata Jumlah Penyewaan')
-plt.xlabel('Kondisi Cuaca')
-st.pyplot()
+sns.barplot(x=[weather_labels[i] for i in weather_counts.index], y=weather_counts, palette='pastel')
+plt.title('Average Bike Rentals by Weather Condition', fontsize=18)
+plt.ylabel('Average Count of Rentals', fontsize=14)
+plt.xlabel('Weather Condition', fontsize=14)
+st.pyplot(plt)  # Menampilkan bar chart di Streamlit
 
-# Penjelasan
-st.write("Kondisi cuaca cerah dan berawan meningkatkan penggunaan sepeda, "
-         "sementara kondisi hujan atau salju mengurangi penyewaan secara signifikan.")
+# Membuat kategori penyewaan sepeda berdasarkan jumlahnya (low, medium, high)
+day_data['cnt_bin'] = pd.cut(day_data['cnt'], bins=[0, 3000, 6000, 9000], labels=['Low', 'Medium', 'High'])
 
-# Kategori penyewaan sepeda
-day_data['cnt_bin'] = pd.cut(day_data['cnt'], bins=[0, 3000, 6000, 9000], labels=['Rendah', 'Sedang', 'Tinggi'])
+# Visualisasi distribusi kategori penyewaan sepeda
+st.subheader("Distribusi Kategori Penyewaan Sepeda (Low, Medium, High)")
 plt.figure(figsize=(8, 5))
 sns.countplot(data=day_data, x='cnt_bin', palette='viridis')
-plt.title('Distribusi Kategori Penyewaan Sepeda (Rendah, Sedang, Tinggi)')
-plt.xlabel('Kategori Penyewaan')
-plt.ylabel('Jumlah Hari')
-st.pyplot()
+plt.title('Distribusi Kategori Penyewaan Sepeda (Low, Medium, High)', fontsize=18)
+plt.xlabel('Kategori Penyewaan', fontsize=14)
+plt.ylabel('Jumlah Hari', fontsize=14)
+st.pyplot(plt)  # Menampilkan plot di Streamlit
 
-# Penjelasan
-st.write("Sebagian besar hari memiliki penyewaan dalam kategori sedang (3000-6000), "
-         "dengan jumlah hari penyewaan rendah dan tinggi yang lebih sedikit.")
-
-# Kesimpulan
-st.header('Kesimpulan')
-st.write("1. Rata-rata penyewaan sepeda lebih tinggi pada hari kerja, menunjukkan penggunaan untuk keperluan komuter.\n"
-         "2. Cuaca memiliki dampak signifikan pada penyewaan sepeda. Hari cerah mendorong lebih banyak penyewaan, "
-         "sementara hujan mengurangi minat pengguna.")
+# Menampilkan insight singkat di bawah visualisasi
+st.write("### Insight:")
+st.write("- Penyewaan lebih tinggi pada hari kerja dibandingkan akhir pekan.")
+st.write("- Cuaca cerah meningkatkan penyewaan sepeda.")
+# Cek distribusi kategori penyewaan sepeda
+st.write("Distribusi Kategori Penyewaan Sepeda:")
+st.write(day_data['cnt_bin'].value_counts())
