@@ -24,10 +24,42 @@ st.image('picture.jpg', use_column_width=True)
 # Memuat data
 day_data = pd.read_csv('day.csv')
 
-
-# Menampilkan data di container terpisah
+# Menampilkan 5 baris pertama dari dataset
 st.subheader("Data Penyewaan Sepeda:")
 st.dataframe(day_data.head())  # Menggunakan st.dataframe untuk tampilan interaktif
+
+# Menampilkan informasi mengenai dataset
+st.subheader("Informasi Dataset:")
+buffer = pd.io.formats.format.StringFormatter()
+st.text(day_data.info(buf=buffer))
+st.text(buffer.getvalue())
+
+# Mengecek jumlah nilai null dalam setiap kolom
+null_counts = day_data.isnull().sum()
+st.subheader("Jumlah Nilai Null dalam Setiap Kolom:")
+st.write(null_counts)
+
+# Mengecek duplikasi data
+duplicate_counts = day_data.duplicated().sum()
+st.write("Jumlah Data Duplikat:", duplicate_counts)
+
+# Mengecek tipe data yang belum sesuai, khususnya kolom dteday
+st.subheader("Tipe Data Sebelum Konversi dteday:")
+st.write(day_data['dteday'].head())
+day_data['dteday'] = pd.to_datetime(day_data['dteday'])
+st.subheader("Tipe Data Setelah Konversi dteday:")
+st.write(day_data['dteday'].head())
+
+# Mengecek adanya outliers pada fitur numerik menggunakan boxplot
+st.subheader("Pengecekan Outliers pada Fitur Numerik:")
+plt.figure(figsize=(12, 6))
+sns.boxplot(data=day_data[['cnt', 'temp', 'atemp', 'hum', 'windspeed']])
+plt.title('Pengecekan Outliers pada Fitur Numerik')
+st.pyplot(plt)
+
+# Menampilkan deskripsi statistik
+st.subheader("Deskripsi Statistik Dataset:")
+st.write(day_data.describe())
 
 # Membuat histogram untuk kolom 'cnt'
 st.subheader("Distribusi Jumlah Penyewaan Sepeda:")
@@ -80,6 +112,3 @@ st.pyplot(plt)  # Menampilkan plot di Streamlit
 st.write("### Insight:")
 st.write("- Penyewaan lebih tinggi pada hari kerja dibandingkan akhir pekan.")
 st.write("- Cuaca cerah meningkatkan penyewaan sepeda.")
-# Cek distribusi kategori penyewaan sepeda
-st.write("Distribusi Kategori Penyewaan Sepeda:")
-st.write(day_data['cnt_bin'].value_counts())
