@@ -1,114 +1,57 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
 import seaborn as sns
+import matplotlib.pyplot as plt
 
-# Set tema
-st.set_page_config(page_title="Dashboard Penyewaan Sepeda", layout="wide")
-
-# Judul Dashboard yang diratakan di tengah dengan gaya menarik
-st.markdown("""
-    <h1 style='text-align: center; 
-                color: #FF6347; 
-                font-family: "Arial", sans-serif; 
-                font-size: 48px; 
-                text-shadow: 3px 3px 2px rgba(0, 0, 0, 0.4);
-                background: linear-gradient(to right, #FF6347, #FFD700); 
-                -webkit-background-clip: text; 
-                -webkit-text-fill-color: transparent;'>Dashboard Penyewaan Sepeda</h1>
-""", unsafe_allow_html=True)
-
-# Menampilkan gambar
-st.image('picture.jpg', use_column_width=True)
-
-# Memuat data
+# Load your dataset
 day_data = pd.read_csv('day.csv')
-
-# Menampilkan 5 baris pertama dari dataset
-st.subheader("Data Penyewaan Sepeda:")
-st.dataframe(day_data.head())  # Menggunakan st.dataframe untuk tampilan interaktif
-
-# Menampilkan informasi mengenai dataset
-st.subheader("Informasi Dataset:")
-buffer = pd.DataFrame(day_data.dtypes).reset_index()
-buffer.columns = ['Kolom', 'Tipe Data']
-st.table(buffer)  # Menggunakan st.table untuk menampilkan informasi kolom dan tipe data
-
-# Mengecek jumlah nilai null dalam setiap kolom
-null_counts = day_data.isnull().sum()
-st.subheader("Jumlah Nilai Null dalam Setiap Kolom:")
-st.write(null_counts)
-
-# Mengecek duplikasi data
-duplicate_counts = day_data.duplicated().sum()
-st.write("Jumlah Data Duplikat:", duplicate_counts)
-
-# Mengecek tipe data yang belum sesuai, khususnya kolom dteday
-st.subheader("Tipe Data Sebelum Konversi dteday:")
-st.write(day_data['dteday'].head())
 day_data['dteday'] = pd.to_datetime(day_data['dteday'])
-st.subheader("Tipe Data Setelah Konversi dteday:")
-st.write(day_data['dteday'].head())
 
-# Mengecek adanya outliers pada fitur numerik menggunakan boxplot
-st.subheader("Pengecekan Outliers pada Fitur Numerik:")
-plt.figure(figsize=(12, 6))
-sns.boxplot(data=day_data[['cnt', 'temp', 'atemp', 'hum', 'windspeed']])
-plt.title('Pengecekan Outliers pada Fitur Numerik')
-st.pyplot(plt)
+# Function to create bar chart for working days vs weekends
+def plot_working_days():
+    workingday_counts = day_data.groupby('workingday')['cnt'].mean()
+    
+    # Create bar chart
+    plt.figure(figsize=(8, 5))
+    sns.barplot(x=['Weekend/Holiday', 'Working Day'], y=workingday_counts)
+    plt.title('Average Bike Rentals: Working Day vs Weekend/Holiday')
+    plt.ylabel('Average Count of Rentals')
+    plt.xlabel('Day Type')
+    st.pyplot()
 
-# Menampilkan deskripsi statistik
-st.subheader("Deskripsi Statistik Dataset:")
-st.write(day_data.describe())
+    # Add explanation
+    st.write("""
+    ### Insights:
+    Rata-rata penyewaan sepeda lebih tinggi pada hari kerja (4500) dibandingkan akhir pekan (4300).
+    Ini menunjukkan bahwa sepeda lebih banyak digunakan untuk keperluan komuter daripada rekreasi.
+    Untuk menarik lebih banyak pengguna di akhir pekan, penyedia layanan dapat mempertimbangkan 
+    untuk menawarkan promosi khusus atau meningkatkan layanan.
+    """)
 
-# Membuat histogram untuk kolom 'cnt'
-st.subheader("Distribusi Jumlah Penyewaan Sepeda:")
-plt.figure(figsize=(10, 6))
-sns.histplot(day_data['cnt'], bins=30, kde=True)
-plt.title('Distribusi Jumlah Penyewaan Sepeda', fontsize=18)
-plt.xlabel('Jumlah Penyewaan', fontsize=14)
-plt.ylabel('Frekuensi', fontsize=14)
-st.pyplot(plt)  # Menggunakan st.pyplot untuk menampilkan plot
+# Function to create bar chart for weather conditions
+def plot_weather_conditions():
+    weather_counts = day_data.groupby('weathersit')['cnt'].mean()
+    
+    weather_labels = {1: 'Clear/Partly Cloudy', 2: 'Cloudy/Mist', 3: 'Light Rain/Snow', 4: 'Heavy Rain/Snow'}
+    
+    plt.figure(figsize=(8, 5))
+    sns.barplot(x=[weather_labels[i] for i in weather_counts.index], y=weather_counts)
+    plt.title('Average Bike Rentals by Weather Condition')
+    plt.ylabel('Average Count of Rentals')
+    plt.xlabel('Weather Condition')
+    st.pyplot()
 
-# Mengelompokkan data berdasarkan hari kerja untuk mendapatkan rata-rata
-workingday_counts = day_data.groupby('workingday')['cnt'].mean()
+    # Add explanation
+    st.write("""
+    ### Insights:
+    Cuaca cerah dan berawan meningkatkan penggunaan sepeda, dengan lebih dari 5000 penyewaan.
+    Sementara itu, kondisi hujan atau salju ringan mengurangi penyewaan secara signifikan (~2000).
+    Hal ini menunjukkan ketergantungan tinggi pada kondisi cuaca yang baik. 
+    """)
 
-# Membuat bar chart untuk Rata-rata Penyewaan Sepeda: Hari Kerja vs Akhir Pekan
-st.subheader("Rata-rata Penyewaan Sepeda: Hari Kerja vs Akhir Pekan")
-plt.figure(figsize=(8, 5))
-sns.barplot(x=['Weekend/Holiday', 'Working Day'], y=workingday_counts, palette='coolwarm')
-plt.title('Average Bike Rentals: Working Day vs Weekend/Holiday', fontsize=18)
-plt.ylabel('Average Count of Rentals', fontsize=14)
-plt.xlabel('Day Type', fontsize=14)
-st.pyplot(plt)  # Menampilkan bar chart di Streamlit
+# Streamlit app layout
+st.title("Bike Sharing Data Analysis")
+st.header("Analysis of Bike Rentals")
 
-# Mengelompokkan data berdasarkan situasi cuaca untuk mendapatkan rata-rata
-weather_counts = day_data.groupby('weathersit')['cnt'].mean()
-
-# Membuat bar chart untuk Penyewaan Sepeda Berdasarkan Cuaca
-st.subheader("Penyewaan Sepeda Berdasarkan Cuaca")
-weather_labels = {1: 'Clear/Partly Cloudy', 2: 'Cloudy/Mist', 3: 'Light Rain/Snow', 4: 'Heavy Rain/Snow'}
-
-plt.figure(figsize=(8, 5))
-sns.barplot(x=[weather_labels[i] for i in weather_counts.index], y=weather_counts, palette='pastel')
-plt.title('Average Bike Rentals by Weather Condition', fontsize=18)
-plt.ylabel('Average Count of Rentals', fontsize=14)
-plt.xlabel('Weather Condition', fontsize=14)
-st.pyplot(plt)  # Menampilkan bar chart di Streamlit
-
-# Membuat kategori penyewaan sepeda berdasarkan jumlahnya (low, medium, high)
-day_data['cnt_bin'] = pd.cut(day_data['cnt'], bins=[0, 3000, 6000, 9000], labels=['Low', 'Medium', 'High'])
-
-# Visualisasi distribusi kategori penyewaan sepeda
-st.subheader("Distribusi Kategori Penyewaan Sepeda (Low, Medium, High)")
-plt.figure(figsize=(8, 5))
-sns.countplot(data=day_data, x='cnt_bin', palette='viridis')
-plt.title('Distribusi Kategori Penyewaan Sepeda (Low, Medium, High)', fontsize=18)
-plt.xlabel('Kategori Penyewaan', fontsize=14)
-plt.ylabel('Jumlah Hari', fontsize=14)
-st.pyplot(plt)  # Menampilkan plot di Streamlit
-
-# Menampilkan insight singkat di bawah visualisasi
-st.write("### Insight:")
-st.write("- Penyewaan lebih tinggi pada hari kerja dibandingkan akhir pekan.")
-st.write("- Cuaca cerah meningkatkan penyewaan sepeda.")
+plot_working_days()
+plot_weather_conditions()
