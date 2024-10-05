@@ -19,10 +19,10 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Menampilkan gambar
-st.image('picture.jpg', use_column_width=True)
+st.image('dashboard/picture.jpg', use_column_width=True)
 
 # Memuat data
-day_data = pd.read_csv('day.csv')
+day_data = pd.read_csv('dashboard/day.csv')
 
 
 # Menampilkan data di container terpisah
